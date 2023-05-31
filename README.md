@@ -2,7 +2,7 @@
 
 ## Description
 
-This repository contains code and resources for building a smart security camera using OpenCV2. The project aims to create a security camera solution that is affordable, easy to set up, and reliable.
+This repository will contain code and resources for building a smart security camera using OpenCV2. The project aims to create a security camera solution that is affordable, easy to set up, and reliable.
 
 The project leverages OpenCV2, a popular open-source computer vision library, to capture and analyze video feed in real-time. Features include motion detection, object recognition, and video recording for post-event analysis. 
 
@@ -18,4 +18,8 @@ The project leverages OpenCV2, a popular open-source computer vision library, to
 2. Navigate to the cloned repository: `cd meercam`
 3. Install the required Python packages: `pip install -r requirements.txt`
 
-_Note: This project requires Python 3.10 or higher._
+_Note: This project was written in Python 3.11.1_
+
+## Used Hardware
+
+1. Creative Live! Cam Sync 1080p V2 [link](https://www.x-kom.pl/p/702732-kamera-internetowa-creative-live-cam-sync-1080p-v2.html)
