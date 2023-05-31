@@ -2,38 +2,65 @@ import cv2 as cv
 
 
 class VideoCapture:
+    """
+    A class used to capture video using OpenCV
+
+    ...
+
+    Attributes
+    ----------
+    capture : cv2.VideoCapture
+        a OpenCV video capture object
+
+    Methods
+    -------
+    start():
+        Begins the video capture loop, displaying each frame until the video ends or ESC key is pressed.
+
+    stop():
+        Releases the video capture object and destroys all windows.
+    """
     def __init__(self, index=0):
-        # Initialize VideoCapture object with the provided index.
+        """
+        Constructs all the necessary attributes for the VideoCapture object.
+
+        Parameters
+        ----------
+        index : int, optional
+            Index of the camera to use for video capture (default is 0, which usually corresponds to the default webcam).
+        """
         self.capture = cv.VideoCapture(index)
 
     def start(self):
-        # Start the video capture loop.
+        """
+        Start the video capture loop.
+        The loop continues until there are no more frames or the ESC key is pressed.
+        After the loop ends, the stop method is automatically called.
+        """
         while True:
-            # Read the next frame from the video capture object.
             ret, frame = self.capture.read()
-            # If the frame is None, it means that there's an issue with the video capture
-            # (perhaps the video is over, or there's an issue with the webcam), so break the loop.
             if frame is None:
                 break
 
-            # Display the current frame in a window named 'Frame'.
             cv.imshow('Frame', frame)
 
-            # Wait for a keyboard event for a delay of 30 milliseconds.
-            # If the ESC key is pressed (ASCII 27), break the loop.
             keyboard = cv.waitKey(30)
             if keyboard == 27:
                 break
 
-        # After the loop is broken, stop the video capture.
         self.stop
 
     def stop(self):
-        # Release the video capture object and destroy all windows to free up resources.
+        """
+        Start the video capture loop.
+        The loop continues until there are no more frames or the ESC key is pressed.
+        After the loop ends, the stop method is automatically called.
+        """
         self.capture.release()
         cv.destroyAllWindows()
 
 
 if __name__ == '__main__':
+    # Create an instance of VideoCapture and start it.
     video_capture = VideoCapture()
     video_capture.start()
