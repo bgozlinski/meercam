@@ -48,7 +48,6 @@ class VideoCapture:
             # cv.imshow('Frame', frame)
             cv.imshow('Frame', gray_frame)
 
-
             keyboard = cv.waitKey(30)
             if keyboard == 27:
                 break
