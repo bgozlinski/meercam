@@ -32,7 +32,7 @@ class VideoCapture:
         self.capture = cv.VideoCapture(index)
 
     def start(self):
-        """opencv turn rgb to black and white
+        """
         Start the video capture loop.
         The loop continues until there are no more frames or the ESC key is pressed.
         After the loop ends, the stop method is automatically called.
@@ -44,12 +44,10 @@ class VideoCapture:
 
             # Convert the frame to grayscale
             gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+            _, black_and_white_frame = cv.threshold(gray_frame, 127, 255, cv.THRESH_BINARY)
+            # cv.imshow('Frame', frame)
+            cv.imshow('Frame', gray_frame)
 
-            # Apply Gaussian filtering for noise reduction
-            denoised_frame = cv.GaussianBlur(gray_frame, (5, 5), 0)
-
-            _, black_and_white_frame = cv.threshold(denoised_frame, 125, 255, cv.THRESH_BINARY)
-            cv.imshow('Frame', black_and_white_frame)
 
             keyboard = cv.waitKey(30)
             if keyboard == 27:
