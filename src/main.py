@@ -1,4 +1,4 @@
-from camera import VideoCapture
+from src.camera import VideoCapture
 
 if __name__ == '__main__':
     # Create an instance of VideoCapture and start it.
