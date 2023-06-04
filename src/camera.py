@@ -33,7 +33,8 @@ class VideoCapture:
         self.capture = cv.VideoCapture(index)
 
     def motion_detection(self, frame, prev_frame):
-        diff = cv.absdiff(frame, prev_frame)
+        diff = cv.absdiff(prev_frame, frame)
+        prev_frame = frame
         kernel = np.ones((5, 5))
         diff = cv.dilate(diff, kernel, 1)
         _, motion_mask = cv.threshold(src=diff,
@@ -41,7 +42,7 @@ class VideoCapture:
                                       maxval=255,
                                       type=cv.THRESH_BINARY)
 
-        contours, _ = cv.findContours(image=motion_mask,
+        contours, _ = cv.findContours(image=motion_mask.copy(),
                                       mode=cv.RETR_EXTERNAL,
                                       method=cv.CHAIN_APPROX_SIMPLE)
         cv.drawContours(image=frame,
@@ -67,10 +68,10 @@ class VideoCapture:
             The threshold frame.
         """
         gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        blur = cv.GaussianBlur(gray_frame, (5, 5), 0)
-        _, black_and_white_frame = cv.threshold(blur, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        gray_frame = cv.GaussianBlur(gray_frame, (5, 5), 0)
+        # _, black_and_white_frame = cv.threshold(blur, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
 
-        return black_and_white_frame
+        return gray_frame
 
     def start(self):
         """
@@ -86,12 +87,10 @@ class VideoCapture:
             if frame is None:
                 break
 
-            black_and_white_frame = self.threshold(frame)
-            cv.imshow('threshold', black_and_white_frame)
-            cv.imshow('frame', frame)
+            gray_frame = self.threshold(frame)
 
             if prev_frame is not None:
-                motion_frame = self.motion_detection(frame=black_and_white_frame,
+                motion_frame = self.motion_detection(frame=gray_frame,
                                                      prev_frame=prev_frame)
                 cv.imshow('motion', motion_frame)
 
@@ -99,8 +98,9 @@ class VideoCapture:
             if keyboard == 27:
                 break
 
-
-            prev_frame = black_and_white_frame
+            if prev_frame is None:
+                prev_frame = gray_frame
+                continue
 
         self.stop()
 
