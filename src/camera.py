@@ -1,4 +1,5 @@
 import cv2 as cv
+import numpy as np
 
 
 class VideoCapture:
@@ -31,6 +32,26 @@ class VideoCapture:
         """
         self.capture = cv.VideoCapture(index)
 
+    def motion_detection(self, frame, prev_frame):
+        diff = cv.absdiff(frame, prev_frame)
+        kernel = np.ones((5, 5))
+        diff = cv.dilate(diff, kernel, 1)
+        _, motion_mask = cv.threshold(src=diff,
+                                      thresh=20,
+                                      maxval=255,
+                                      type=cv.THRESH_BINARY)
+
+        contours, _ = cv.findContours(image=motion_mask,
+                                      mode=cv.RETR_EXTERNAL,
+                                      method=cv.CHAIN_APPROX_SIMPLE)
+        cv.drawContours(image=frame,
+                        contours=contours,
+                        contourIdx=-1,
+                        color=(0, 255, 0),
+                        thickness=2,
+                        lineType=cv.LINE_AA)
+        return frame
+
     def threshold(self, frame):
         """
         Applies Gaussian Blur and Otsu's thresholding to the input frame.
@@ -57,7 +78,10 @@ class VideoCapture:
         The loop continues until there are no more frames or the ESC key is pressed.
         After the loop ends, the stop method is automatically called.
         """
+        prev_frame = None
+
         while True:
+
             ret, frame = self.capture.read()
             if frame is None:
                 break
@@ -66,11 +90,19 @@ class VideoCapture:
             cv.imshow('threshold', black_and_white_frame)
             cv.imshow('frame', frame)
 
+            if prev_frame is not None:
+                motion_frame = self.motion_detection(frame=black_and_white_frame,
+                                                     prev_frame=prev_frame)
+                cv.imshow('motion', motion_frame)
+
             keyboard = cv.waitKey(30)
             if keyboard == 27:
                 break
 
-        self.stop
+
+            prev_frame = black_and_white_frame
+
+        self.stop()
 
     def stop(self):
         """
