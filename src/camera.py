@@ -33,8 +33,8 @@ class VideoCapture:
         self.capture = cv.VideoCapture(index)
 
     def motion_detection(self, frame, prev_frame):
-        diff = cv.absdiff(prev_frame, frame)
-        prev_frame = frame
+        diff = cv.absdiff(frame, prev_frame)
+        cv.imshow('diff', diff)
         kernel = np.ones((5, 5))
         diff = cv.dilate(diff, kernel, 1)
         _, motion_mask = cv.threshold(src=diff,
@@ -69,7 +69,7 @@ class VideoCapture:
         """
         gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         gray_frame = cv.GaussianBlur(gray_frame, (5, 5), 0)
-        # _, black_and_white_frame = cv.threshold(blur, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        _, gray_frame = cv.threshold(gray_frame, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
 
         return gray_frame
 
@@ -92,6 +92,7 @@ class VideoCapture:
             if prev_frame is not None:
                 motion_frame = self.motion_detection(frame=gray_frame,
                                                      prev_frame=prev_frame)
+                prev_frame = gray_frame
                 cv.imshow('motion', motion_frame)
 
             keyboard = cv.waitKey(30)
