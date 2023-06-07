@@ -31,29 +31,9 @@ class VideoCapture:
             Index of the camera to use for video capture (default is 0, which usually corresponds to the default webcam).
         """
         self.capture = cv.VideoCapture(index)
+        self.show_image = True
 
-    def motion_detection(self, frame, prev_frame):
-        diff = cv.absdiff(frame, prev_frame)
-        cv.imshow('diff', diff)
-        kernel = np.ones((5, 5))
-        diff = cv.dilate(diff, kernel, 1)
-        _, motion_mask = cv.threshold(src=diff,
-                                      thresh=20,
-                                      maxval=255,
-                                      type=cv.THRESH_BINARY)
-
-        contours, _ = cv.findContours(image=motion_mask.copy(),
-                                      mode=cv.RETR_EXTERNAL,
-                                      method=cv.CHAIN_APPROX_SIMPLE)
-        cv.drawContours(image=frame,
-                        contours=contours,
-                        contourIdx=-1,
-                        color=(0, 255, 0),
-                        thickness=2,
-                        lineType=cv.LINE_AA)
-        return frame
-
-    def threshold(self, frame):
+    def convert_to_gray(self, frame):
         """
         Applies Gaussian Blur and Otsu's thresholding to the input frame.
 
@@ -64,14 +44,23 @@ class VideoCapture:
 
         Returns
         -------
-       black_and_white_frame : np.ndarray
+        black_and_white_frame : np.ndarray
             The threshold frame.
         """
-        gray_frame = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
-        gray_frame = cv.GaussianBlur(gray_frame, (5, 5), 0)
-        _, gray_frame = cv.threshold(gray_frame, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+        frame = cv.cvtColor(src=frame, code=cv.COLOR_BGR2RGB)
+        gray_frame_convert = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+        gray_frame_convert = cv.GaussianBlur(src=gray_frame_convert, ksize=(5, 5), sigmaX=0)
+        if self.show_image:
+            cv.imshow('frame', frame)
+            cv.imshow('gray', gray_frame_convert)
 
-        return gray_frame
+        return gray_frame_convert
+
+    def frame_difference(self, frame, previous_frame):
+            diff_frame_calculate = cv.absdiff(src1=previous_frame, src2=frame)
+            if self.show_image:
+                cv.imshow('diff',diff_frame_calculate)
+            return diff_frame_calculate
 
     def start(self):
         """
@@ -79,29 +68,20 @@ class VideoCapture:
         The loop continues until there are no more frames or the ESC key is pressed.
         After the loop ends, the stop method is automatically called.
         """
-        prev_frame = None
+        previous_frame = None
 
         while True:
 
-            ret, frame = self.capture.read()
-            if frame is None:
+            _, frame = self.capture.read()
+            frame = self.convert_to_gray(frame)
+
+            if previous_frame is not None:
+                self.frame_difference(frame, previous_frame)
+
+            previous_frame = frame
+
+            if cv.waitKey(30) == 27:
                 break
-
-            gray_frame = self.threshold(frame)
-
-            if prev_frame is not None:
-                motion_frame = self.motion_detection(frame=gray_frame,
-                                                     prev_frame=prev_frame)
-                prev_frame = gray_frame
-                cv.imshow('motion', motion_frame)
-
-            keyboard = cv.waitKey(30)
-            if keyboard == 27:
-                break
-
-            if prev_frame is None:
-                prev_frame = gray_frame
-                continue
 
         self.stop()
 
