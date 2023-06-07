@@ -43,14 +43,6 @@ class VideoCapture:
                 cv.circle(img=raw_frame, center=(circle_point_x, circle_point_y), radius=5, color=(0, 0, 255), thickness=-1)
         if self.show_image:
             cv.imshow('drawing', raw_frame)
-        # for contour in contours:
-        #     if cv.contourArea(contour) < 3500:
-        #         continue
-        #     x, y, w, h = cv.boundingRect(contour)
-        #     (cirlce_point_x, cirlce_point_y) = (x + w // 2, y + h // 2)
-        #     cv.circle(img=raw_frame, center=(cirlce_point_x, cirlce_point_y), radius=5, color=(0, 0, 255), thickness=-1)
-        # if self.show_image:
-        #     cv.imshow('drawing', raw_frame)
 
     def start(self):
         previous_frame = None
