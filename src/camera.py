@@ -12,6 +12,7 @@ class VideoCapture:
         frame = cv.cvtColor(src=frame, code=cv.COLOR_BGR2RGB)
         gray_frame_convert = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
         gray_frame_convert = cv.GaussianBlur(src=gray_frame_convert, ksize=(5, 5), sigmaX=0)
+
         if self.show_image:
             cv.imshow('frame', frame)
             cv.imshow('gray', gray_frame_convert)
@@ -20,20 +21,40 @@ class VideoCapture:
 
     def frame_difference(self, frame, previous_frame):
         diff_frame_calculate = cv.absdiff(src1=previous_frame, src2=frame)
+        _, thresh = cv.threshold(diff_frame_calculate, 25, 255, cv.THRESH_BINARY)
         if self.show_image:
             cv.imshow('diff', diff_frame_calculate)
         return diff_frame_calculate
+
+    def threshold(self, frame_delta):
+        _, thresh = cv.threshold(frame_delta, 25, 255, cv.THRESH_BINARY)
+        thresh = cv.dilate(thresh, None, iterations=2)
+        if self.show_image:
+            cv.imshow('thresh', thresh)
+        return thresh
+
+    def draw_rectangle(self, frame, raw_frame):
+        contours, _ = cv.findContours(image=frame.copy(), mode=cv.RETR_EXTERNAL, method=cv.CHAIN_APPROX_SIMPLE)
+        for contour in contours:
+            if cv.contourArea(contour) < 3500:
+                continue
+            (x, y, w, h) = cv.boundingRect(contour)
+            cv.rectangle(img=raw_frame, pt1=(x, y), pt2=(x + w, y + h), color=(0, 0, 255), thickness=1)
+        if self.show_image:
+            cv.imshow('contours', raw_frame)
 
     def start(self):
         previous_frame = None
 
         while True:
 
-            _, frame = self.capture.read()
-            frame = self.convert_to_gray(frame)
+            _, raw_frame = self.capture.read()
+            frame = self.convert_to_gray(raw_frame)
 
             if previous_frame is not None:
-                self.frame_difference(frame, previous_frame)
+                frame_delta = self.frame_difference(frame, previous_frame)
+                thresh = self.threshold(frame_delta)
+                self.draw_rectangle(thresh, raw_frame)
 
             previous_frame = frame
 
