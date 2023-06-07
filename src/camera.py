@@ -21,6 +21,7 @@ class VideoCapture:
     stop():
         Releases the video capture object and destroys all windows.
     """
+
     def __init__(self, index: int = 0):
         """
         Constructs all the necessary attributes for the VideoCapture object.
@@ -57,10 +58,10 @@ class VideoCapture:
         return gray_frame_convert
 
     def frame_difference(self, frame, previous_frame):
-            diff_frame_calculate = cv.absdiff(src1=previous_frame, src2=frame)
-            if self.show_image:
-                cv.imshow('diff',diff_frame_calculate)
-            return diff_frame_calculate
+        diff_frame_calculate = cv.absdiff(src1=previous_frame, src2=frame)
+        if self.show_image:
+            cv.imshow('diff', diff_frame_calculate)
+        return diff_frame_calculate
 
     def start(self):
         """
