@@ -35,14 +35,22 @@ class VideoCapture:
 
     def draw_dot(self, frame, raw_frame):
         contours, _ = cv.findContours(image=frame.copy(), mode=cv.RETR_EXTERNAL, method=cv.CHAIN_APPROX_SIMPLE)
-        for contour in contours:
-            if cv.contourArea(contour) < 3500:
-                continue
-            x, y, w, h = cv.boundingRect(contour)
-            # cv.rectangle(img=raw_frame, pt1=(x, y), pt2=(x + w, y + h), color=(0, 0, 255), thickness=1)
-            cv.circle(img=raw_frame, center=(x + w // 2, y + h // 2), radius=5, color=(0, 0, 255), thickness=-1)
+        if contours:
+            max_contour = max(contours, key=cv.contourArea)
+            if cv.contourArea(max_contour) > 3500:
+                x, y, w, h = cv.boundingRect(max_contour)
+                (circle_point_x, circle_point_y) = (x + w // 2, y + h // 2)
+                cv.circle(img=raw_frame, center=(circle_point_x, circle_point_y), radius=5, color=(0, 0, 255), thickness=-1)
         if self.show_image:
             cv.imshow('drawing', raw_frame)
+        # for contour in contours:
+        #     if cv.contourArea(contour) < 3500:
+        #         continue
+        #     x, y, w, h = cv.boundingRect(contour)
+        #     (cirlce_point_x, cirlce_point_y) = (x + w // 2, y + h // 2)
+        #     cv.circle(img=raw_frame, center=(cirlce_point_x, cirlce_point_y), radius=5, color=(0, 0, 255), thickness=-1)
+        # if self.show_image:
+        #     cv.imshow('drawing', raw_frame)
 
     def start(self):
         previous_frame = None
