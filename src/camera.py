@@ -33,15 +33,16 @@ class VideoCapture:
             cv.imshow('thresh', thresh)
         return thresh
 
-    def draw_rectangle(self, frame, raw_frame):
+    def draw_dot(self, frame, raw_frame):
         contours, _ = cv.findContours(image=frame.copy(), mode=cv.RETR_EXTERNAL, method=cv.CHAIN_APPROX_SIMPLE)
         for contour in contours:
             if cv.contourArea(contour) < 3500:
                 continue
-            (x, y, w, h) = cv.boundingRect(contour)
-            cv.rectangle(img=raw_frame, pt1=(x, y), pt2=(x + w, y + h), color=(0, 0, 255), thickness=1)
+            x, y, w, h = cv.boundingRect(contour)
+            # cv.rectangle(img=raw_frame, pt1=(x, y), pt2=(x + w, y + h), color=(0, 0, 255), thickness=1)
+            cv.circle(img=raw_frame, center=(x + w // 2, y + h // 2), radius=5, color=(0, 0, 255), thickness=-1)
         if self.show_image:
-            cv.imshow('contours', raw_frame)
+            cv.imshow('drawing', raw_frame)
 
     def start(self):
         previous_frame = None
@@ -54,7 +55,7 @@ class VideoCapture:
             if previous_frame is not None:
                 frame_delta = self.frame_difference(frame, previous_frame)
                 thresh = self.threshold(frame_delta)
-                self.draw_rectangle(thresh, raw_frame)
+                self.draw_dot(thresh, raw_frame)
 
             previous_frame = frame
 
